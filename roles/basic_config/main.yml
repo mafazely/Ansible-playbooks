@@ -1,0 +1,51 @@
+---
+# -- first of all we must set SSH public key --
+#  add ssh public keys to authroized_keys [this step has done before]
+
+
+- name: install install some initial packages on debian based systems
+  apt:
+    update_cache: yes
+    name:
+      - zsh
+      - build-essential
+      - libssl-dev
+      - python3-pip
+      - python3-venv
+      - git
+      - vim
+      - curl
+    state: present
+  when: ansible_facts['os_family']|lower == 'debian'
+
+
+- name: install some initial packages on rhel based systems
+  yum:
+    update_cache: yes
+    name:
+      - zsh
+      - git
+      - epel-release
+      - vim
+      - curl
+    state: latest
+  when: ansible_facts['os_family']|lower == 'redhat'
+
+
+- name: install oh-my-zsh
+  shell:
+    cmd: 'yes | sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
+
+
+- name: change zsh theme to my custom
+  lineinfile:
+    dest: "~/.zshrc"
+    regexp: "^ZSH_THEME=.+"
+    line: 'ZSH_THEME="half-life"'
+    state: present
+
+
+- name: change default shell to zsh
+  user:
+    name: root
+    shell: /usr/bin/zsh
