@@ -2,3 +2,4 @@
 
 # swap
 disable_swap: true
+allow_firewall_config: true
