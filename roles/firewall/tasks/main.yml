@@ -1,0 +1,35 @@
+---
+
+- name: installing the firewall
+  apt:
+    name: ufw
+    state: present
+    update_cache: yes
+
+- name: Set logging
+  ufw:
+    logging: on
+
+- name: ensuring the ssh connection is up
+  ufw:
+    rule: allow
+    port: item
+    proto: tcp
+  with_items:
+  - ansible_ssh_port
+
+- name: restarting the firewall
+  ufw:
+    state: restarted
+
+- name: enabling the firewall
+  ufw:
+    state: enabled
+
+- name: allowing connection from other nodes
+  ufw:
+    rule: allow
+    from_ip: item
+    from_port: any
+  with_inventory_hostnames:
+    -all
