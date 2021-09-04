@@ -1,0 +1,11 @@
+---
+
+- name: disabling swap
+  import_tasks: swap.yml
+  when: disable_swap == true
+
+- name: firewall configuration
+  import_role:
+    name: firewall
+  when: allow_firewall_config == true
+
