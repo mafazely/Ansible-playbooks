@@ -1,6 +1,8 @@
 ---
 - name: basic vm config
   hosts: vm1
+  sudo: True
+  remote_user: root
   tasks:
   - import_role:
       name: basic_config
@@ -8,6 +10,8 @@
 
 - name: prerequisites setup
   hosts: vm1
+  sudo: True
+  remote_user: root
   tasks:
   - import_role:
       name: prerequisites
@@ -15,6 +19,8 @@
 
 - name: installation
   hosts: vm1
+  sudo: True
+  remote_user: root
   tasks:
   - import_role:
       name: install
@@ -22,6 +28,8 @@
 
 - name: configuration
   hosts: vm1
+  sudo: True
+  remote_user: root
   tasks:
   - import_role:
       name: config 
