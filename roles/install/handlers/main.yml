@@ -1,0 +1,6 @@
+--- 
+- name: redis-server restart
+  service: name=redis-server state=restarted
+
+- name: enabling the firewall
+  service: name=redis-server state=enabled
