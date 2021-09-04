@@ -1,0 +1,24 @@
+- name: Removes anonymous user account for localhost
+  community.mysql.mysql_user:
+    name: ''
+    host: localhost
+    state: absent
+
+- name: Removes all anonymous user accounts
+  community.mysql.mysql_user:
+    name: ''
+    host_all: yes
+    state: absent
+
+- name: Create database user with password and all database privileges and 'WITH GRANT OPTION'
+  community.mysql.mysql_user:
+    name: amin
+    password: 1378
+    host: 172.28.4.102
+    priv: '*.*:ALL,GRANT'
+    state: present
+
+- name: Create a new database with name 'django_redis_database'
+  community.mysql.mysql_db:
+    name: django_redis_database
+    state: present

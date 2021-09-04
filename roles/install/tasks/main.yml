@@ -6,3 +6,20 @@
 - name: Configure redis to allow external connections
   template: src=redis.conf dest=/etc/redis/redis.conf
   notify: redis-server restart
+
+# install mysql
+- name: Install MySQL packages
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - mysql-common
+      - mysql-server
+      - mysql-client
+      
+- name: Enable the MySQL service
+  service:
+    name: mysql
+    state: started
+    enabled: true
