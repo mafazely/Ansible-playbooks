@@ -3,7 +3,7 @@
 #  add ssh public keys to authroized_keys [this step has done before]
 
 
-- name: install install some initial packages on debian based systems
+- name: install some initial packages on debian based systems
   apt:
     update_cache: yes
     name:
