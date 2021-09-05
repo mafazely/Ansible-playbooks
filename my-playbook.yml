@@ -6,7 +6,7 @@
   tasks:
   - import_role:
       name: basic_config
-    #when: apply_basic_config == 'true'
+
 
 - name: prerequisites setup
   hosts: vm1
@@ -15,7 +15,7 @@
   tasks:
   - import_role:
       name: prerequisites
-    when: apply_prerequisites == 'true'
+
 
 - name: installation
   hosts: vm1
@@ -24,7 +24,7 @@
   tasks:
   - import_role:
       name: install
-    when: allow_install=='true'
+
 
 - name: configuration
   hosts: vm1
@@ -33,4 +33,4 @@
   tasks:
   - import_role:
       name: config 
-    when: allow_config=='true'
+      
