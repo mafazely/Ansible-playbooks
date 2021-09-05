@@ -1,0 +1,4 @@
+---
+# network_plugin: "https://docs.projectcalico.org/manifests/calico.yaml"
+network_plugin: "https://docs.projectcalico.org/v3.4/getting-started/kubernetes/installation/hosted/calico.yaml"
+node_ip: "192.168.50.10"

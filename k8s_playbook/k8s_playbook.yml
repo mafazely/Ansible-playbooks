@@ -1,0 +1,146 @@
+---
+- hosts: vm2
+  become: True
+  remote_user: root
+  vars_files:
+    - vars/vars.yml
+
+  tasks:
+
+    # -- basic config and packages --
+
+    - name: install some initial packages on debian based systems
+      apt:
+        update_cache: yes
+        name:
+          - curl
+          - build-essential
+          - vim
+          - software-properties-common
+          - apt-transport-https
+          - ca-certificates
+        state: present
+
+    # -- config firewall --
+
+    - name: installing the firewall
+      apt:
+        name: ufw
+        update_cache: yes
+
+    - name: ensuring the ssh connection is up
+      ufw:
+        rule: allow
+        port: ssh
+        proto: tcp
+
+
+    - name: enabling the firewall
+      ufw:
+        state: enabled
+    - name: allowing connection from other nodes
+      ufw:
+        rule: allow
+        from_ip: item
+        from_port: any
+      with_inventory_hostnames:
+        -all
+
+    # -- install k8s packages --
+    
+    # - name: Add an apt signing key for Kubernetes
+    #   apt_key:
+    #     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    #     state: present
+
+    # - name: Adding apt repository for Kubernetes
+    #   apt_repository:
+    #     repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    #     state: present
+    #     filename: kubernetes.list
+
+    - name: Install Kubernetes binaries
+      apt: 
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - kubelet 
+          - kubeadm 
+          - kubectl
+    
+    - name: apt-mark hold for kubernets packages
+      shell: apt-mark hold kubelet kubeadm kubectl
+
+    - name: Configure node ip
+      lineinfile:
+        path: /etc/default/kubelet
+        line: KUBELET_EXTRA_ARGS=--node-ip={{ node_ip }}
+
+    - name: Restart kubelet
+      service:
+        name: kubelet
+        daemon_reload: yes
+        state: restarted
+
+
+
+    # -- init config k8s packages --
+
+    - name: Initialize the Kubernetes cluster using kubeadm
+      command: kubeadm init --apiserver-advertise-address="192.168.50.10" --apiserver-cert-extra-sans="192.168.50.10"  --node-name k8s-master --pod-network-cidr=192.168.0.0/16
+
+    - name: making the .kube directory
+      file:
+        path: "/root/.kube"
+        state: directory
+        mode: '0755'
+
+    # - name: apply network plugin 
+    #   shell: "kubectl apply -f {{network_plugin}} | cat"
+    
+    - name: Install calico pod network
+      become: false
+      command: kubectl create -f {{network_plugin}} | cat
+
+
+    # -- after install config k8s packages --
+
+    - name: Remove swapfile from /etc/fstab
+      mount:
+        name: "{{ item }}"
+        fstype: swap
+        state: absent
+      with_items:
+        - swap
+        - none
+
+    - name: Disable swap
+      command: swapoff -a
+      when: ansible_swaptotal_mb > 0
+
+    - name: Disable swappiness and pass bridged IPv4 traffic to iptable's chains
+      sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        state: present
+      with_items:
+        - { name: 'vm.swappiness', value: '0' }
+        - { name: 'net.bridge.bridge-nf-call-iptables', value: '1' }
+
+    - name: Create service drop-in directory
+      file:
+        path: /etc/systemd/system/kubelet.service.d/
+        state: directory
+        owner: "{{ ansible_user | default(ansible_user_id) }}"
+        group: "{{ ansible_user | default(ansible_user_id) }}"
+        mode: 0755
+        
+    - name: Reload kubelet daemon
+      systemd:
+        name: kubelet
+        daemon_reload: yes
+        enabled: yes
+
+
