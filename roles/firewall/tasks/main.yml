@@ -13,14 +13,12 @@
 - name: ensuring the ssh connection is up
   ufw:
     rule: allow
-    port: item
+    port: ssh
     proto: tcp
-  with_items:
-  - ansible_ssh_port
 
 - name: restarting the firewall
   ufw:
-    state: restarted
+    state: reloaded
 
 - name: enabling the firewall
   ufw:
