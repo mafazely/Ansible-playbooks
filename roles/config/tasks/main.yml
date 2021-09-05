@@ -14,7 +14,7 @@
   community.mysql.mysql_user:
     name: amin
     password: 1378
-    host: 172.28.4.102
+    host: vm2
     priv: '*.*:ALL,GRANT'
     state: present
 

@@ -1,6 +1,6 @@
 # vm for database server
 [vm1]
-172.28.4.101
+172.28.4.103
 
 # vm for k8s cluster
 [vm2]
