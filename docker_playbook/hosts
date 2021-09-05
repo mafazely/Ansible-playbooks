@@ -1,0 +1,14 @@
+# vm for database server
+[vm1]
+172.28.4.103
+
+# vm for k8s cluster
+[vm2]
+172.28.4.102
+
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+ansible_connection=ssh
+ansible_ssh_port=22
+ansible_user=root

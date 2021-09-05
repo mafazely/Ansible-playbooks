@@ -1,0 +1,76 @@
+---
+- hosts: vm2
+  become: True
+  remote_user: root
+  vars_files:
+    - vars/vars.yml
+
+  tasks:
+    - name: Ensure old versions of Docker are not installed.
+      package:
+        name:
+          - docker
+          - docker-engine
+          - docker.io
+          - docker-ce 
+          - docker-ce-cli
+          - containerd
+          - runc
+        state: absent
+
+    - name: Set Up The Docker Repository
+      apt:
+        update_cache: yes
+        state: latest
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+          - python3-pip
+          - lsb-release
+
+    - name: Add Docker GPG apt key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Set lsb_release
+      shell: /usr/bin/lsb_release -cs
+      register: lsb_release
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu {{ lsb_release.stdout }} stable
+        state: present
+
+    - name: Update apt and Install Docker-ce
+      apt:
+        update_cache: yes
+        name: docker-ce
+        state: latest
+
+    - name: Update apt and Install Docker-cli
+      apt:
+        update_cache: yes
+        name: docker-ce-cli
+        state: latest
+    
+    - name: Update apt and Install containerd.io
+      apt:
+        update_cache: yes
+        name: containerd.io
+        state: latest
+
+    - name: Install Docker Python Packages
+      pip:
+        name: docker
+
+    - name: Create Hello World Container
+      docker_container:
+        name: "{{ container_name }}"
+        image: "{{ container_image }}"
+        state: present
+
+...
