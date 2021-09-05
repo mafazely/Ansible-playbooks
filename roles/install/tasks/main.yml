@@ -17,6 +17,15 @@
       - mysql-common
       - mysql-server
       - mysql-client
+  
+- name: Install MySQL pip packages
+  pip:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      #- MySQL-python
+      - PyMySQL
       
 - name: Enable the MySQL service
   service:
